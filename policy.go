@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/storage"
+	"github.com/ismoilroziboyev/universalratelimiter/storage"
 )
 
 type FailureMode uint8

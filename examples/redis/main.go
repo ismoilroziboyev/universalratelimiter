@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	ratelimiter "github.com/ismoilroziboyev/ginuniversalratelimiter"
-	redisstore "github.com/ismoilroziboyev/ginuniversalratelimiter/storage/redis"
+	ratelimiter "github.com/ismoilroziboyev/universalratelimiter"
+	redisstore "github.com/ismoilroziboyev/universalratelimiter/storage/redis"
 	"github.com/redis/go-redis/v9"
 )
 

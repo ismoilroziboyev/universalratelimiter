@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/storage"
+	"github.com/ismoilroziboyev/universalratelimiter/storage"
 )
 
 func TestCleanupCapacityAndClose(t *testing.T) {

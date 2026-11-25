@@ -9,8 +9,8 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/observability"
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/storage"
+	"github.com/ismoilroziboyev/universalratelimiter/observability"
+	"github.com/ismoilroziboyev/universalratelimiter/storage"
 )
 
 // Limiter allows or denies a request for the given key and quota cost.

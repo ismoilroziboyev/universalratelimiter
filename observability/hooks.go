@@ -4,7 +4,7 @@ package observability
 import (
 	"time"
 
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/storage"
+	"github.com/ismoilroziboyev/universalratelimiter/storage"
 )
 
 // Outcome identifies what happened to the operation.

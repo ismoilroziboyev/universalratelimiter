@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/observability"
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/storage"
+	"github.com/ismoilroziboyev/universalratelimiter/observability"
+	"github.com/ismoilroziboyev/universalratelimiter/storage"
 )
 
 type FixedWindowConfig struct {

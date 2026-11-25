@@ -8,7 +8,7 @@ import (
 	"math"
 	"time"
 
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/internal/clock"
+	"github.com/ismoilroziboyev/universalratelimiter/internal/clock"
 )
 
 var (

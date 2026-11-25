@@ -6,7 +6,7 @@ import (
 	"reflect"
 
 	framework "github.com/gin-gonic/gin"
-	ratelimiter "github.com/ismoilroziboyev/ginuniversalratelimiter"
+	ratelimiter "github.com/ismoilroziboyev/universalratelimiter"
 )
 
 type FailureMode = ratelimiter.FailureMode

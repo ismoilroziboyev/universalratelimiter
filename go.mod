@@ -1,4 +1,4 @@
-module github.com/ismoilroziboyev/ginuniversalratelimiter
+module github.com/ismoilroziboyev/universalratelimiter
 
 go 1.26.0
 

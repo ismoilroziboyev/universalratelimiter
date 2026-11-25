@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/internal/clock"
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/storage"
+	"github.com/ismoilroziboyev/universalratelimiter/internal/clock"
+	"github.com/ismoilroziboyev/universalratelimiter/storage"
 	goredis "github.com/redis/go-redis/v9"
 )
 

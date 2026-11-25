@@ -3,7 +3,7 @@ package algorithm
 import (
 	"math"
 
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/storage"
+	"github.com/ismoilroziboyev/universalratelimiter/storage"
 )
 
 // leakyBucket tracks queued work in quota units. For GCRA this is the

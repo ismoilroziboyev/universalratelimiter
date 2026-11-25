@@ -1,4 +1,4 @@
-# Gin Universal Rate Limiter
+# Universal Rate Limiter
 
 Weighted rate limiting for Go services, with optional Gin middleware. Use the same `Limiter` interface from an HTTP handler, a gRPC interceptor, or a background worker. Choose an in-memory store for a single process or a Redis store for a shared quota across replicas.
 
@@ -7,7 +7,7 @@ Weighted rate limiting for Go services, with optional Gin middleware. Use the sa
 Requires Go 1.26. Use Redis 8 or later. The Redis backend is tested with Redis 8.8.0.
 
 ```sh
-go get github.com/ismoilroziboyev/ginuniversalratelimiter@v0.1.0
+go get github.com/ismoilroziboyev/universalratelimiter@v0.1.1
 ```
 
 ## Quick start
@@ -17,8 +17,8 @@ import (
     "context"
     "time"
 
-    ratelimiter "github.com/ismoilroziboyev/ginuniversalratelimiter"
-    "github.com/ismoilroziboyev/ginuniversalratelimiter/storage/memory"
+    ratelimiter "github.com/ismoilroziboyev/universalratelimiter"
+    "github.com/ismoilroziboyev/universalratelimiter/storage/memory"
 )
 
 func newExportLimiter(store *memory.Store) (*ratelimiter.RateLimiter, error) {
@@ -119,7 +119,7 @@ Use matching namespaces, configuration, and Redis prefixes across instances that
 ```go
 import (
     "github.com/gin-gonic/gin"
-    ginlimit "github.com/ismoilroziboyev/ginuniversalratelimiter/middleware/gin"
+    ginlimit "github.com/ismoilroziboyev/universalratelimiter/middleware/gin"
 )
 
 r := gin.New()

@@ -10,9 +10,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/internal/algorithm"
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/internal/clock"
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/storage"
+	"github.com/ismoilroziboyev/universalratelimiter/internal/algorithm"
+	"github.com/ismoilroziboyev/universalratelimiter/internal/clock"
+	"github.com/ismoilroziboyev/universalratelimiter/storage"
 )
 
 const shardCount = 64

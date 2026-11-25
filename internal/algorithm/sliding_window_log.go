@@ -1,6 +1,6 @@
 package algorithm
 
-import "github.com/ismoilroziboyev/ginuniversalratelimiter/storage"
+import "github.com/ismoilroziboyev/universalratelimiter/storage"
 
 // slidingLog drops expired entries and only scans for a retry time on denial.
 func slidingLog(req storage.Request, actual, now int64, state State) (storage.Result, storage.Result, State) {

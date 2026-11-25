@@ -6,8 +6,8 @@ import (
 	"log"
 	"time"
 
-	ratelimiter "github.com/ismoilroziboyev/ginuniversalratelimiter"
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/storage/memory"
+	ratelimiter "github.com/ismoilroziboyev/universalratelimiter"
+	"github.com/ismoilroziboyev/universalratelimiter/storage/memory"
 )
 
 func main() {

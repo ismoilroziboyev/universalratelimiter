@@ -3,7 +3,7 @@ package ratelimiter
 import (
 	"errors"
 
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/storage"
+	"github.com/ismoilroziboyev/universalratelimiter/storage"
 )
 
 var (

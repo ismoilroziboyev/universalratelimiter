@@ -7,10 +7,10 @@ import (
 	"testing"
 	"time"
 
-	lim "github.com/ismoilroziboyev/ginuniversalratelimiter"
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/storage"
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/storage/memory"
-	redisstore "github.com/ismoilroziboyev/ginuniversalratelimiter/storage/redis"
+	lim "github.com/ismoilroziboyev/universalratelimiter"
+	"github.com/ismoilroziboyev/universalratelimiter/storage"
+	"github.com/ismoilroziboyev/universalratelimiter/storage/memory"
+	redisstore "github.com/ismoilroziboyev/universalratelimiter/storage/redis"
 	"github.com/redis/go-redis/v9"
 )
 

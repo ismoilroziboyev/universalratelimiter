@@ -6,9 +6,9 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	ratelimiter "github.com/ismoilroziboyev/ginuniversalratelimiter"
-	ginlimit "github.com/ismoilroziboyev/ginuniversalratelimiter/middleware/gin"
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/storage/memory"
+	ratelimiter "github.com/ismoilroziboyev/universalratelimiter"
+	ginlimit "github.com/ismoilroziboyev/universalratelimiter/middleware/gin"
+	"github.com/ismoilroziboyev/universalratelimiter/storage/memory"
 )
 
 func main() {

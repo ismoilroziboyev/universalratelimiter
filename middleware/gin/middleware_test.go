@@ -12,11 +12,11 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	ratelimiter "github.com/ismoilroziboyev/ginuniversalratelimiter"
-	ginlimit "github.com/ismoilroziboyev/ginuniversalratelimiter/middleware/gin"
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/observability"
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/storage"
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/storage/memory"
+	ratelimiter "github.com/ismoilroziboyev/universalratelimiter"
+	ginlimit "github.com/ismoilroziboyev/universalratelimiter/middleware/gin"
+	"github.com/ismoilroziboyev/universalratelimiter/observability"
+	"github.com/ismoilroziboyev/universalratelimiter/storage"
+	"github.com/ismoilroziboyev/universalratelimiter/storage/memory"
 )
 
 type limiterFunc func(context.Context, string, int64) (ratelimiter.Result, error)

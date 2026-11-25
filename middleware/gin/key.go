@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	ratelimiter "github.com/ismoilroziboyev/ginuniversalratelimiter"
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/storage"
+	ratelimiter "github.com/ismoilroziboyev/universalratelimiter"
+	"github.com/ismoilroziboyev/universalratelimiter/storage"
 
 	framework "github.com/gin-gonic/gin"
 )

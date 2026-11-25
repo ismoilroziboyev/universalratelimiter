@@ -9,10 +9,10 @@ import (
 	"testing"
 	"time"
 
-	lim "github.com/ismoilroziboyev/ginuniversalratelimiter"
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/observability"
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/storage"
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/storage/memory"
+	lim "github.com/ismoilroziboyev/universalratelimiter"
+	"github.com/ismoilroziboyev/universalratelimiter/observability"
+	"github.com/ismoilroziboyev/universalratelimiter/storage"
+	"github.com/ismoilroziboyev/universalratelimiter/storage/memory"
 )
 
 func setup(t *testing.T, option lim.Option, options ...lim.Option) (*lim.RateLimiter, *atomic.Int64) {

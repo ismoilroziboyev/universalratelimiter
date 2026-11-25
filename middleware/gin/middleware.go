@@ -3,7 +3,7 @@ package gin
 import (
 	"fmt"
 
-	ratelimiter "github.com/ismoilroziboyev/ginuniversalratelimiter"
+	ratelimiter "github.com/ismoilroziboyev/universalratelimiter"
 
 	framework "github.com/gin-gonic/gin"
 )

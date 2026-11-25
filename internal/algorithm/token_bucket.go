@@ -3,7 +3,7 @@ package algorithm
 import (
 	"math"
 
-	"github.com/ismoilroziboyev/ginuniversalratelimiter/storage"
+	"github.com/ismoilroziboyev/universalratelimiter/storage"
 )
 
 func tokenBucket(req storage.Request, actual, now int64, state State) (storage.Result, storage.Result, State) {
