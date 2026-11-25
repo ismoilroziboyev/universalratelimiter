@@ -1,13 +1,13 @@
 # Universal Rate Limiter
 
-Weighted rate limiting for Go services, with optional Gin middleware. Use the same `Limiter` interface from an HTTP handler, a gRPC interceptor, or a background worker. Choose an in-memory store for a single process or a Redis store for a shared quota across replicas.
+Weighted rate limiting for Go services, with middleware for net/http, Gin, Echo, and Fiber. Use the same `Limiter` interface from an HTTP handler, a gRPC interceptor, or a background worker. Choose an in-memory store for a single process or a Redis store for a shared quota across replicas.
 
 ## Install
 
 Requires Go 1.26. Use Redis 8 or later. The Redis backend is tested with Redis 8.8.0.
 
 ```sh
-go get github.com/ismoilroziboyev/universalratelimiter@v0.1.1
+go get github.com/ismoilroziboyev/universalratelimiter@v0.2.0
 ```
 
 ## Quick start
@@ -113,6 +113,80 @@ Use `*redis.Client` for standalone, `redis.NewFailoverClient` with `redis.Failov
 A warmed check sends one Lua invocation via `EVALSHA`. A `NOSCRIPT` response triggers `EVAL` to restore the cache. Redis server time is authoritative. Charged state always has a TTL, and a token bucket remains in Redis until its quota would be fully restored. Retries after a timeout or connection loss can double-charge a request if Redis already applied it. The example disables automatic command retries. Redis restart, asynchronous failover, or eviction can discard quota state. Choose an eviction policy and persistence settings that fit the deployment.
 
 Use matching namespaces, configuration, and Redis prefixes across instances that share quota. A separate `WithNamespace` or Redis prefix isolates independent applications or budget groups. Changing a policy's algorithm configuration selects a new bucket. The old one expires normally.
+
+## HTTP middleware
+
+| Server or router | Package | Registration |
+| --- | --- | --- |
+| Standard Go server, Chi, and other net/http routers | `middleware/nethttp` | Wrap a handler or pass the middleware to the router |
+| Gin | `middleware/gin` | Router, group, or route middleware |
+| Echo v5 | `middleware/echo` | Global, group, or route middleware |
+| Fiber v3.7+ | `middleware/fiber` | Global, group, or route handler |
+
+The net/http, Echo, and Fiber adapters expose `New(Config)` and `NewMulti(mode, policies...)`. Both return an error for invalid startup configuration. Each adapter supports static `Cost` and dynamic `CostFunc`, custom key and skip functions, response handlers, failure modes, and optional quota headers. The default responses and multi-policy rules are the same as for Gin. Custom Echo and Fiber response handlers can also return native framework errors. For net/http, write the response through `Request.Writer` and return `nil`.
+
+### net/http and Chi
+
+```go
+import (
+    "net/http"
+    httpmw "github.com/ismoilroziboyev/universalratelimiter/middleware/nethttp"
+)
+
+limitReports, err := httpmw.New(httpmw.Config{
+    Limiter: limiter, KeyFunc: httpmw.ByRoute(), Cost: 10, Headers: true,
+})
+if err != nil {
+    return err
+}
+
+mux := http.NewServeMux()
+mux.Handle("GET /reports/{id}", limitReports(http.HandlerFunc(getReport)))
+```
+
+`ByIP` is the default and uses the transport peer. For Go's ServeMux, install `ByRoute` on a matched route so `Request.Pattern` is populated. Chi can use the middleware directly with `r.Use(limiterMiddleware)` or `r.With(limiterMiddleware).Get(...)`. Use an explicit route key with `Global` or a custom resolver when the router supplies its own route metadata.
+
+### Echo
+
+```go
+import (
+    "github.com/labstack/echo/v5"
+    echomw "github.com/ismoilroziboyev/universalratelimiter/middleware/echo"
+)
+
+limitReports, err := echomw.New(echomw.Config{
+    Limiter: limiter, KeyFunc: echomw.ByRoute(), Cost: 10, Headers: true,
+})
+if err != nil {
+    return err
+}
+
+app := echo.New()
+app.GET("/reports/:id", getReport, limitReports)
+```
+
+Echo uses its configured IP extractor for the default `ByIP` resolver. Configure trusted proxies before relying on forwarding headers. The adapter passes `c.Request().Context()` to the limiter.
+
+### Fiber
+
+```go
+import (
+    "github.com/gofiber/fiber/v3"
+    fibermw "github.com/ismoilroziboyev/universalratelimiter/middleware/fiber"
+)
+
+limitReports, err := fibermw.New(fibermw.Config{
+    Limiter: limiter, KeyFunc: fibermw.ByRoute(), Cost: 10, Headers: true,
+})
+if err != nil {
+    return err
+}
+
+app := fiber.New()
+app.Get("/reports/:id", limitReports, getReport)
+```
+
+Fiber's default `ByIP` uses the transport peer. To use forwarding headers, configure Fiber's trusted proxies and use `ByClientIP`. `ByRoute` resolves the endpoint template even from global middleware. The adapter passes `c.Context()` to the limiter, so a deadline set upstream through `c.SetContext(...)` reaches the backend.
 
 ## Gin middleware
 
