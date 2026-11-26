@@ -1,13 +1,13 @@
 # Universal Rate Limiter
 
-Weighted rate limiting for Go services, with middleware for net/http, Gin, Echo, and Fiber. Use the same `Limiter` interface from an HTTP handler, a gRPC interceptor, or a background worker. Choose an in-memory store for a single process or a Redis store for a shared quota across replicas.
+Weighted rate limiting for Go services, with middleware for net/http, Gin, Echo, and Fiber, plus gRPC server interceptors. Use the same `Limiter` interface from an HTTP handler, a gRPC interceptor, or a background worker. Choose an in-memory store for a single process or a Redis store for a shared quota across replicas.
 
 ## Install
 
 Requires Go 1.26. Use Redis 8 or later. The Redis backend is tested with Redis 8.8.0.
 
 ```sh
-go get github.com/ismoilroziboyev/universalratelimiter@v0.2.0
+go get github.com/ismoilroziboyev/universalratelimiter@v0.3.0
 ```
 
 ## Quick start
@@ -259,6 +259,68 @@ r.Use(handler)
 Successful requests report headers from the first evaluated policy. Rejections report headers from the first denying policy. In a rejected atomic batch, remaining quota reflects the balance without a charge.
 
 For Redis Cluster atomic batches, use one shared `*redisstore.Store` configured with a `HashTag`. It places all keys for that store in the same slot. Separate independent batches with separate tags and stores when the workload permits. A shared tag or a global limiter creates a hot slot or key. Ordinary untagged Redis checks distribute across slots. Unsupported atomic configuration returns `ErrUnsupportedAtomic`. Redis scripts are atomic with respect to other clients. An unexpected script runtime error after a write can leave a partial update. A network error can hide the outcome of a successfully applied script.
+
+## gRPC server interceptors
+
+```go
+import (
+    grpclimit "github.com/ismoilroziboyev/universalratelimiter/middleware/grpc"
+    "google.golang.org/grpc"
+)
+
+guard, err := grpclimit.New(grpclimit.Config{Limiter: limiter})
+if err != nil {
+    return err
+}
+
+server := grpc.NewServer(
+    grpc.ChainUnaryInterceptor(guard.Unary),
+    grpc.ChainStreamInterceptor(guard.Stream),
+)
+// Register your generated services with server.
+```
+
+The default policy charges one unit per unary call or stream opening. The quota key is the full gRPC method, so each method shares a quota across callers by default. Set `KeyFunc` to use a verified tenant or user identity plus the method. When the resolver depends on authenticated context, chain the authentication interceptor first. `SkipFunc` can exclude health checks. Set `Cost` for a fixed weight or `UnaryCostFunc` to compute it from a decoded unary request.
+
+Set `StreamMessageCost` to a positive value, or set `StreamMessageCostFunc`, to also charge every successfully decoded incoming message against the same key as the stream opening. End-of-stream and receive errors cost zero. Message rejection ends the RPC, and a new stream is required to continue. The interceptor checks incoming messages before returning them to application code. Set gRPC's receive-size limit to bound decoding costs separately.
+
+Quota rejection returns `ResourceExhausted`. A positive retry delay is included as `google.rpc.RetryInfo`. Invalid key or cost returns `InvalidArgument`, storage failure returns `Unavailable` by default, and request cancellation and deadlines retain their gRPC status. `ratelimiter.FailOpen` allows calls when an eligible backend error occurs. [gRPC status codes](https://grpc.io/docs/guides/status-codes/), [RetryInfo](https://github.com/googleapis/googleapis/blob/master/google/rpc/error_details.proto).
+
+## Other transports and application integrations
+
+Call the same limiter at the boundary where your application can identify the caller and measure the work. This helper keeps quota rejection distinct from a backend failure and preserves the retry delay.
+
+```go
+import (
+    "context"
+    "time"
+
+    ratelimiter "github.com/ismoilroziboyev/universalratelimiter"
+)
+
+func admit(ctx context.Context, limiter ratelimiter.Limiter, key string, cost int64) (time.Duration, error) {
+    result, err := limiter.Allow(ctx, key, cost)
+    if err != nil {
+        return 0, err
+    }
+    if !result.Allowed {
+        return result.RetryAfter, ratelimiter.ErrRateLimitExceeded
+    }
+    return 0, nil
+}
+```
+
+Use `errors.Is(err, ratelimiter.ErrRateLimitExceeded)` to detect quota rejection. Keep keys stable across repeated work, such as `ws:message:<verified-tenant>` or `worker:export:<verified-tenant>`. Choose cost from validated message size, item count, or operation complexity. A rejected request with zero retry delay exceeds policy capacity and should take your application's permanent-failure path. Handle backend errors using the failure policy appropriate to the workload.
+
+| Integration | Where to call `admit` and how to handle rejection |
+| --- | --- |
+| WebSocket | Use HTTP middleware for the handshake. Call `admit` after each complete incoming application message is decoded and before dispatch. On rejection, send a protocol-level application error or close the connection according to your endpoint contract. [WebSocket RFC](https://datatracker.ietf.org/doc/html/rfc6455) |
+| Connect RPC | Use a v2 server interceptor and check the decoded unary call before the handler. For streaming, select stream admission or wrap incoming message delivery. Map quota rejection to `connect.CodeResourceExhausted` and a fail-closed backend error to `connect.CodeUnavailable`. If a request-count limit is sufficient, wrap the mounted HTTP handler with `middleware/nethttp`. [Connect interceptor API](https://connectrpc.com/docs/go/migrating-to-v2/) |
+| GraphQL | Apply HTTP request limits to the endpoint. For weighted limits, call `admit` after validation and use validated operation complexity as cost before execution. Return a GraphQL error through your server's normal error path. [GraphQL demand control](https://graphql.org/learn/performance/#demand-control) |
+| RabbitMQ or NATS JetStream | Check before starting the consumer's work. Use a delayed retry for a temporary rejection, such as a delayed retry queue in RabbitMQ or `NakWithDelay` in JetStream. Acknowledge according to your processing guarantee. [RabbitMQ acknowledgements](https://www.rabbitmq.com/docs/confirms), [JetStream consumers](https://docs.nats.io/nats-concepts/jetstream/consumers) |
+| Kafka | Check before processing each record or batch. For a temporary rejection, pause or defer work for the partition without committing an offset past an unprocessed record. [Kafka consumer offsets](https://kafka.apache.org/44/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html) |
+| MQTT or background jobs | Check after decoding the application message or before dispatching a job. Use the application's acknowledgement, retry, and failure policy, especially when delivery can repeat. |
+| HTTP/2, HTTP/3, and SSE | Use `middleware/nethttp` on servers exposing an `http.Handler`. For SSE, the HTTP limit applies when the stream opens. Call the limiter in the producer if each outgoing event also needs a quota. [quic-go HTTP/3 server](https://quic-go.net/docs/http3/server/) |
 
 ## Failure handling and observability
 

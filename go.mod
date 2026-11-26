@@ -7,6 +7,9 @@ require (
 	github.com/gofiber/fiber/v3 v3.7.0
 	github.com/labstack/echo/v5 v5.4.7
 	github.com/redis/go-redis/v9 v9.23.0
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260817212433-ac3dfec99bb1
+	google.golang.org/grpc v1.85.0
+	google.golang.org/protobuf v1.36.12
 )
 
 require (
@@ -50,5 +53,4 @@ require (
 	golang.org/x/net v0.62.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/text v0.43.0 // indirect
-	google.golang.org/protobuf v1.36.10 // indirect
 )
